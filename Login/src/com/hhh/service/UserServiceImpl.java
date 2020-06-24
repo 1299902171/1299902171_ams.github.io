@@ -14,43 +14,47 @@ import java.util.Map;
  */
 public class UserServiceImpl implements UserService{
 
-    private UserDao dao = new UserDaoImpl();
+    private static UserDao dao = new UserDaoImpl();
+    private UserServiceImpl(){};
+    public static UserDaoImpl getDao(){
+        return (UserDaoImpl) dao;
+    }
 
     @Override
     public List<User> findAll() {
-        return dao.findAll();
+        return getDao().findAll();
     }
 
     @Override
     public User login(User user) {
-        return dao.findUserByNameAndPassword(user.getUsername(),user.getPassword());
+        return getDao().findUserByNameAndPassword(user.getUsername(),user.getPassword());
     }
 
     @Override
     public void add(User user) {
-        dao.add(user);
+        getDao().add(user);
     }
 
     @Override
     public void delete(String id) {
-        dao.delete(Integer.parseInt(id));
+        getDao().delete(Integer.parseInt(id));
     }
 
     @Override
     public User findUserById(String id) {
-        return dao.findById(Integer.parseInt(id));
+        return getDao().findById(Integer.parseInt(id));
     }
 
     @Override
     public void updateUser(User user) {
-        dao.update(user);
+        getDao().update(user);
     }
 
     @Override
     public void delSelectedUser(String[] ids) {
         if(ids != null && ids.length > 0) {
             for (String id : ids) {
-                dao.delete(Integer.parseInt(id));
+                getDao().delete(Integer.parseInt(id));
             }
         }
     }
@@ -62,8 +66,8 @@ public class UserServiceImpl implements UserService{
         if(currentPage <= 0){
             currentPage = 1;
         }
-        if(currentPage >= ((dao.findTotalCount(condition) % rows)  == 0 ? dao.findTotalCount(condition)/rows : (dao.findTotalCount(condition)/rows) + 1)){
-            currentPage = ((dao.findTotalCount(condition) % rows)  == 0 ? dao.findTotalCount(condition)/rows : (dao.findTotalCount(condition)/rows) + 1);
+        if(currentPage >= ((getDao().findTotalCount(condition) % rows)  == 0 ? getDao().findTotalCount(condition)/rows : (getDao().findTotalCount(condition)/rows) + 1)){
+            currentPage = ((getDao().findTotalCount(condition) % rows)  == 0 ? getDao().findTotalCount(condition)/rows : (getDao().findTotalCount(condition)/rows) + 1);
         }
         //1创建空的pagebean
         PageBean<User> pb = new PageBean<User>();
@@ -71,11 +75,11 @@ public class UserServiceImpl implements UserService{
         pb.setCurrentPage(currentPage);
         pb.setRows(rows);
         //3调用dao查询总记录数
-        int totalCount = dao.findTotalCount(condition);
+        int totalCount = getDao().findTotalCount(condition);
         pb.setTotalCount(totalCount);
         //4调用dao查询List集合
         int start = (currentPage - 1) * rows;
-        List<User> list = dao.findByPage(start,rows,condition);
+        List<User> list = getDao().findByPage(start,rows,condition);
         pb.setList(list);
         //5计算总页码
         int totalPage = (totalCount % rows)  == 0 ? totalCount/rows : (totalCount/rows) + 1;
@@ -85,3 +89,4 @@ public class UserServiceImpl implements UserService{
 
 
 }
+

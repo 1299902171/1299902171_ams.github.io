@@ -17,12 +17,16 @@ import java.util.Set;
  */
 public class UserDaoImpl implements UserDao{
 
-    private JdbcTemplate template = new JdbcTemplate(JDBCUtils.getDataSource());
+    private static JdbcTemplate template = new JdbcTemplate(JDBCUtils.getDataSource());
+    public UserDaoImpl(){};
+    public static JdbcTemplate getTemplate(){
+        return template;
+    }
 
     @Override
     public List<User> findAll() {
         String sql = "select * from user";
-        List<User> users = template.query(sql, new BeanPropertyRowMapper<User>(User.class));
+        List<User> users = getTemplate().query(sql, new BeanPropertyRowMapper<User>(User.class));
         return users;
     }
 
@@ -30,7 +34,7 @@ public class UserDaoImpl implements UserDao{
     public User findUserByNameAndPassword(String username, String password) {
         try {
             String sql = "select * from user where username = ? and password = ?";
-            User user = template.queryForObject(sql, new BeanPropertyRowMapper<User>(User.class), username, password);
+            User user = getTemplate().queryForObject(sql, new BeanPropertyRowMapper<User>(User.class), username, password);
             return user;
         } catch (DataAccessException e) {
             e.printStackTrace();
@@ -41,25 +45,25 @@ public class UserDaoImpl implements UserDao{
     @Override
     public void add(User user) {
         String sql = "insert into user values(null,?,?,?)";
-        template.update(sql, user.getUsername(), user.getPassword(), user.getEmail());
+        getTemplate().update(sql, user.getUsername(), user.getPassword(), user.getEmail());
     }
 
     @Override
     public void delete(int id) {
         String sql = "delete from user where id = ?";
-        template.update(sql,id);
+        getTemplate().update(sql,id);
     }
 
     @Override
     public User findById(int id) {
         String sql = "select * from user where id = ?";
-        return template.queryForObject(sql,new BeanPropertyRowMapper<User>(User.class),id);
+        return getTemplate().queryForObject(sql,new BeanPropertyRowMapper<User>(User.class),id);
     }
 
     @Override
     public void update(User user) {
         String sql = "update user set username = ?,password = ?,email = ? where id = ?";
-        template.update(sql,user.getUsername(),user.getPassword(),user.getEmail(),user.getId());
+        getTemplate().update(sql,user.getUsername(),user.getPassword(),user.getEmail(),user.getId());
     }
 
     @Override
@@ -82,7 +86,7 @@ public class UserDaoImpl implements UserDao{
                 params.add("%"+value+"%");//？的值
             }
         }
-        return template.queryForObject(sb.toString(),Integer.class,params.toArray());
+        return getTemplate().queryForObject(sb.toString(),Integer.class,params.toArray());
     }
 
     @Override
@@ -111,7 +115,7 @@ public class UserDaoImpl implements UserDao{
         params.add(rows);
 
 
-        return template.query(sb.toString(),new BeanPropertyRowMapper<User>(User.class),params.toArray());
+        return getTemplate().query(sb.toString(),new BeanPropertyRowMapper<User>(User.class),params.toArray());
     }
 
 }
